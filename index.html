@@ -555,15 +555,35 @@ function setLanguage(lang) {
    ============================ */
 startBtn.addEventListener('click', async () => {
   try {
+    // 1. Kiểm tra video (Có sẵn)
     if (!fileInput.files || fileInput.files.length === 0) { alert('Vui lòng chọn 1 file video'); return; }
 
-    const fps = Math.max(1, Math.min(120, parseInt(fpsInput.value) || 24));
+    // 2. CHẶN FILE KHÔNG PHẢI .OGG
+const musicFiles = document.getElementById("musicUpload")?.files;
+if (musicFiles && musicFiles.length > 0) {
+  for (let i = 0; i < musicFiles.length; i++) {
+    const fileName = musicFiles[i].name.toLowerCase();
+    if (!fileName.endsWith('.ogg')) {
+      const errorMsg = `Lỗi: File "${musicFiles[i].name}" không phải .ogg!\n\nBạn có muốn mở trang web chuyển đổi nhạc sang .ogg ngay bây giờ không?`;
+      
+      console.error(`Lỗi định dạng: ${musicFiles[i].name}. Yêu cầu .ogg`);
+      
+      if (confirm(errorMsg)) {
+        window.open("https://convertio.co/vn/mp3-ogg/", "_blank");
+      }
+      return; // Luôn dừng tạo pack nếu sai định dạng
+    }
+  }
+}
+    
+ const fps = Math.max(1, Math.min(120, parseInt(fpsInput.value) || 24));
     if (fps > 60) {
       if (!confirm('⚠️ FPS cao (>60) có thể gây crash trên điện thoại. Tiếp tục?')) {
         console.log('Người dùng hủy vì FPS cao');
         return;
       }
     }
+
     console.log('Số FPS mong muốn:', fps);
 
     const video = document.createElement('video');
